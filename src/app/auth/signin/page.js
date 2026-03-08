@@ -1,15 +1,33 @@
 'use client';
 
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { useState, useEffect } from 'react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function SignIn() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (session) {
+      router.push('/');
+      router.refresh();
+    }
+  }, [session, router]);
+
+  if (status === 'loading') {
+    return (
+      <div className="auth-container" style={{ justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <div className="auth-card">
+          <p>加载中...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
